@@ -16,8 +16,7 @@ let g:OxfDictionary#app_key=''
 
 Execute this command with the cursor on the word you want look up.
 
-```
-vim
+``` vim
 :Definition
 ```
 
