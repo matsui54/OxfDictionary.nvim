@@ -45,9 +45,9 @@ class OxfordDict:
                             definitions.append('- '+defn)
                             cntcol+=1
                             max_width = max(max_width, min(len(defn)+2, 101))
-                            if len(defn)>100:
+                            if len(defn)>99:
                                 cntcol+=1
-                                if len(defn)>199:
+                                if len(defn)>200:
                                     cntcol+=1
         return definitions, cntcol, max_width
 

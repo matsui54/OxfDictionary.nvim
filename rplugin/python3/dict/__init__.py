@@ -37,8 +37,8 @@ class Dictionary:
 
         screen_height = int(self.nvim.command_output("echo &lines"))
         screen_width = int(self.nvim.command_output("echo &columns"))
-        win_height = defs[1]
-        win_width = defs[2]
+        fwin_height = defs[1]
+        fwin_width = defs[2]
         cWin_col = self.nvim.current.window.col
         cWin_row = self.nvim.current.window.row
         win_cursol = self.nvim.current.window.cursor
@@ -48,23 +48,24 @@ class Dictionary:
             - int(self.nvim.command_output("echo line('w0')")) + 1
         if cursor_row > screen_height/2:
             anchor = 'SW'
-            fwin_row = max(int(win_height), cursor_row-1)
+            fwin_row = max(int(fwin_height), cursor_row-1)
         else:
             anchor = 'NW'
-            fwin_row = min(screen_height-win_height, cursor_row+1)
+            fwin_row = min(screen_height-fwin_height, cursor_row+1)
 
         #make floating window
         self.nvim.command("let buf = nvim_create_buf(v:false, v:true)")
+        self.nvim.command("call nvim_buf_set_lines(buf, 0, -1, v:true, ['Definition'])")
         for meaning in defs[0]:
             self.nvim.command("call nvim_buf_set_lines(buf, -1, -1, v:true, ['{}'])"\
                               .format(meaning))
         self.nvim.command("let opts = {{'relative': 'editor',\
                                         'width': {0},\
                                         'height': {1},\
-                                        'col': 5,\
+                                        'col': 15,\
                                         'row': {2},\
                                         'anchor': '{3}',\
                                         'style': 'minimal'}}"\
-                          .format(win_width, win_height+1, fwin_row, anchor))
+                          .format(fwin_width, fwin_height+1, fwin_row, anchor))
         self.nvim.command("let win = nvim_open_win(buf, 1, opts)")
 
