@@ -15,6 +15,7 @@ let g:OxfDictionary#app_key=''
 ```
 
 Execute this command with the cursor on the word you want look up.
+The word once you looked up is cache.
 
 ``` vim
 :Definition
