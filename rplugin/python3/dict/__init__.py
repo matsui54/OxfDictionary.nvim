@@ -1,4 +1,6 @@
 import pynvim
+import os
+import pickle
 from .dictionary import OxfordDict
 
 
@@ -69,3 +71,16 @@ class Dictionary:
             )
         )
 
+        cache_path = "./dict_cache.dump"
+        if not os.path.exists(cache_path):
+            os.system("touch {}".format(cache_path))
+        if os.path.getsize(cache_path):
+            cacheFile = open(cache_path, "rb")
+            wordList = pickle.load(cacheFile)
+            cacheFile.close()
+        else:
+            wordList = {}
+        wordList[selectedW] = defs
+        cacheFile = open(cache_path, "wb")
+        pickle.dump(wordList, cacheFile)
+        cacheFile.close()

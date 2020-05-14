@@ -1,5 +1,7 @@
 import requests
 import json
+import os
+import pickle
 
 
 class OxfordDict:
@@ -13,6 +15,17 @@ class OxfordDict:
         self.language = "en-us"
 
     def get_definition(self, word_id):
+
+        # check if the selected word is cached
+        cache_path = "./dict_cache.dump"
+        if os.path.exists(cache_path) and os.path.getsize(cache_path):
+            cacheFile = open(cache_path, "rb")
+            wordList = pickle.load(cacheFile)
+            cacheFile.close()
+            wordExists = wordList.get(word_id)
+            if wordExists:
+                return wordExists
+
         url = (
             self.base_url
             + self.language
@@ -58,4 +71,5 @@ class OxfordDict:
                                 cntcol += 1
                                 if len(defn) > 200:
                                     cntcol += 1
+
         return definitions, cntcol, max_width
