@@ -17,7 +17,7 @@ class OxfordDict:
     def get_definition(self, word_id):
 
         # check if the selected word is cached
-        cache_path = os.getcwd() + "/dict_cache.dump"
+        cache_path = os.path.dirname(os.path.abspath(__file__))
         if os.path.exists(cache_path) and os.path.getsize(cache_path):
             cacheFile = open(cache_path, "rb")
             wordList = pickle.load(cacheFile)
