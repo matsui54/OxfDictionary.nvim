@@ -71,7 +71,7 @@ class Dictionary:
             )
         )
 
-        cache_path = os.path.dirname(os.path.abspath(__file__))
+        cache_path = os.path.dirname(os.path.abspath(__file__)) + "/dict_cache.dump"
         if not os.path.exists(cache_path):
             os.system("touch {}".format(cache_path))
         if os.path.getsize(cache_path):
