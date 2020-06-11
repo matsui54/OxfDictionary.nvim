@@ -1,3 +1,13 @@
+function! oxfdictionary#print_error(string)
+  echohl ErrorMsg | echomsg '[oxfdictionary] ' . a:string | echohl None
+endfunction
+
+function! oxfdictionary#get_cursor_pos_in_screen()
+  return win_screenpos(win_getid())[0]
+        \ + getpos('.')[1]
+        \ - line('w0')
+endfunction
+
 function! oxfdictionary#add_highlight()
 	syntax region DictionaryName start='\%1l' end='$'
 	syntax region DictionaryCategory start='^[^-]\%>1l' end='$'
