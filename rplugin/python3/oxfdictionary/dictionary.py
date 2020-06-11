@@ -117,7 +117,8 @@ class Dict:
             fwin_row = max(win_height, cursor_row - 1)
         else:
             anchor = "NW"
-            fwin_row = min(screen_height - win_height, cursor_row + 1)
+            fwin_row = min(screen_height - win_height, cursor_row)
+
         new_buf_nr: int = self._nvim.call("nvim_create_buf", False, True)
         self._nvim.call(
             "nvim_open_win",
@@ -132,8 +133,9 @@ class Dict:
                 "anchor": anchor,
             },
         )
-        self._nvim.command('setlocal nonumber')
+        self._nvim.command("setlocal nonumber")
+        self._nvim.command("nnoremap <buffer><silent> q :call nvim_win_close(0, 0)<CR>")
         buffer = self._nvim.current.buffer
         buffer[:] = lines
-        lines.pop(0)
         self._nvim.call("oxfdictionary#add_highlight")
+        lines.pop(0)
