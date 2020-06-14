@@ -1,9 +1,10 @@
-import typing
-import requests
 import json
+import math
 import os
 import pickle
-import math
+import typing
+
+import requests
 
 
 class Dict:
@@ -42,12 +43,14 @@ class Dict:
 
     def _check_dump(self, word: str) -> typing.List[str]:
         # check if the selected word is cached
-        if os.path.exists(self._cache_path) and os.path.getsize(self._cache_path):
+        definitions = []
+        if (os.path.exists(self._cache_path) and
+                os.path.getsize(self._cache_path)):
             cache_file = open(self._cache_path, "rb")
-            word_dict: typing.Dict[str : typing.List[str]] = pickle.load(cache_file)
+            word_dict = pickle.load(cache_file)
             cache_file.close()
             definitions = word_dict.get(word, [])
-            return definitions
+        return definitions
 
     def _update_dump(self, word: str, defs: typing.List[str]) -> None:
         if not os.path.exists(self._cache_path):
@@ -91,22 +94,25 @@ class Dict:
                             definitions.append("- " + defn)
         return definitions
 
-    def _get_word(self, arg: [str]) -> str:
+    def _get_word(self, arg: typing.List[str]) -> str:
         if arg:
             word = arg[0]
         else:
             word = self._nvim.eval('expand("<cword>")')
         return word.lower()
 
-    def _get_f_win_size(self, lines: typing.List[str]) -> [int, int]:
+    def _get_f_win_size(
+            self, lines: typing.List[str]) -> typing.Tuple[int, int]:
         height = 0
         width = 10
         for line in lines:
             width = max(width, min(len(line), self._f_win_max_width))
-            height += 1 + math.floor((len(line) - 1) / (self._f_win_max_width - 1))
+            height += \
+                1 + math.floor((len(line) - 1) / (self._f_win_max_width - 1))
         return height, width
 
-    def _show_floating_window(self, word: str, lines: typing.List[str]) -> None:
+    def _show_floating_window(
+            self, word: str, lines: typing.List[str]) -> None:
         lines.insert(0, word)
         [win_height, win_width] = self._get_f_win_size(lines)
         cursor_row = self._nvim.call("oxfdictionary#get_cursor_pos_in_screen")
@@ -134,7 +140,9 @@ class Dict:
             },
         )
         self._nvim.command("setlocal nonumber")
-        self._nvim.command("nnoremap <buffer><silent> q :call nvim_win_close(0, 0)<CR>")
+        self._nvim.command(
+            "nnoremap <buffer><silent> q :call nvim_win_close(0, 0)<CR>"
+        )
         buffer = self._nvim.current.buffer
         buffer[:] = lines
         self._nvim.call("oxfdictionary#add_highlight")

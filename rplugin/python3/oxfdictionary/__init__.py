@@ -1,6 +1,6 @@
 import pynvim
 
-from oxfdictionary.dictionary import Dict
+from .dictionary import Dict
 
 
 @pynvim.plugin
