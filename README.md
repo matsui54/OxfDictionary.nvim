@@ -14,14 +14,14 @@ let g:OxfDictionary#app_id=''
 let g:OxfDictionary#app_key=''
 ```
 
-Execute this command with the cursor on the word you want look up.
-The word once you looked up is cache.
+Execute this command with the cursor on the word you want to look up.
+The word once you looked up is cached.
 
 ``` vim
 :Definition
 ```
 
-By taking a word as an argument, you can get the definitions of the word.
+By taking a word as an argument, you can get the definitions of it.
 ```vim
-:Definition [word...]
+:Definition [word]
 ```
