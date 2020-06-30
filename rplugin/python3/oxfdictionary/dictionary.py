@@ -3,6 +3,7 @@ import math
 import os
 import pickle
 import typing
+import copy
 
 import requests
 
@@ -10,36 +11,22 @@ import requests
 class Dict:
     def __init__(self, nvim) -> None:
         self._nvim = nvim
-        self.app_id = nvim.eval("g:OxfDictionary#app_id")
-        self.app_key = nvim.eval("g:OxfDictionary#app_key")
+        self._app_id = nvim.eval("g:OxfDictionary#app_id")
+        self._app_key = nvim.eval("g:OxfDictionary#app_key")
         self._f_win_max_width = 101
         self._cache_path = (
             os.path.dirname(os.path.abspath(__file__)) + "/dict_cache.dump"
         )
 
-    def show_definition(self, arg: list) -> None:
-        word = self._get_word(arg)
-
-        if not word:
-            self._error("Words are not selected.")
-            return
-
-        lines = self._check_dump(word)
-        if not lines:
-            response = self._get_api_msg(word)
-            if response.status_code != 200:
-                if response.status_code == 404:
-                    self._error("No definition found")
-                else:
-                    self._error("Internal error")
-                return
-            lines = self._process_def_dict(json.loads(response.text))
-
-        self._show_floating_window(word, lines)
-        self._update_dump(word, lines)
-
     def _error(self, msg: str) -> None:
         self._nvim.call("oxfdictionary#print_error", msg)
+
+    def _get_word(self, arg: typing.List[str]) -> str:
+        if arg:
+            word = arg[0]
+        else:
+            word = self._nvim.eval('expand("<cword>")')
+        return word.lower()
 
     def _check_dump(self, word: str) -> typing.List[str]:
         # check if the selected word is cached
@@ -79,7 +66,7 @@ class Dict:
             + "false"
         )
         return requests.get(
-            url, headers={"app_id": self.app_id, "app_key": self.app_key}
+            url, headers={"app_id": self._app_id, "app_key": self._app_key}
         )
 
     def _process_def_dict(self, def_dict: dict) -> typing.List[str]:
@@ -93,13 +80,6 @@ class Dict:
                         for defn in sen["definitions"]:
                             definitions.append("- " + defn)
         return definitions
-
-    def _get_word(self, arg: typing.List[str]) -> str:
-        if arg:
-            word = arg[0]
-        else:
-            word = self._nvim.eval('expand("<cword>")')
-        return word.lower()
 
     def _get_f_win_size(
             self, lines: typing.List[str]) -> typing.Tuple[int, int]:
@@ -146,4 +126,24 @@ class Dict:
         buffer = self._nvim.current.buffer
         buffer[:] = lines
         self._nvim.call("oxfdictionary#add_highlight")
-        lines.pop(0)
+
+    def show_definition(self, arg: list) -> None:
+        word = self._get_word(arg)
+
+        if not word:
+            self._error("Words are not selected.")
+            return
+
+        lines: typing.List[str] = self._check_dump(word)
+        if not lines:
+            response = self._get_api_msg(word)
+            if response.status_code != 200:
+                if response.status_code == 404:
+                    self._error("No definition found")
+                else:
+                    self._error("Internal error")
+                return
+            lines = self._process_def_dict(json.loads(response.text))
+
+        self._show_floating_window(word, copy.deepcopy(lines))
+        self._update_dump(word, lines)
